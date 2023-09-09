@@ -32,7 +32,9 @@ jobs:
     - name: Push and Merge to Different Branch
       run: |
         TARGET_BRANCH="merge_queue"
-        git checkout -B $TARGET_BRANCH
+        git config user.email "${{ github.event.pull_request.user.login }}@triconinfotech.com"
+        git config user.name "${{ github.event.pull_request.user.login }}"
+        git checkout $TARGET_BRANCH
         git add .
         git commit -m "Merge code to $TARGET_BRANCH"
         git push origin $TARGET_BRANCH
