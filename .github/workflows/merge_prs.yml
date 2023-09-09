@@ -36,6 +36,5 @@ jobs:
         git config user.name "${{ github.event.pull_request.user.login }}"
         git fetch origin
         git checkout $TARGET_BRANCH
-        git add .
-        git commit -m "Merge code to $TARGET_BRANCH"
+        git pull origin ${{ github.event.pull_request.head.ref }}
         git push origin $TARGET_BRANCH
