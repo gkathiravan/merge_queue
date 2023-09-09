@@ -20,8 +20,10 @@ jobs:
           echo "URL: ${{ github.event.pull_request.html_url }}"
           echo "Branch Name : ${{ github.event.pull_request.head.ref }}"
           echo "---------------------"
+          
   count_prs:
     runs-on: ubuntu-latest
+    needs: print_details
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -29,4 +31,19 @@ jobs:
       run: |
         pr_count=$(curl -s "https://api.github.com/repos/${{ github.repository }}/pulls" | jq length)
         echo "Number of PRs: $pr_count"
+        
+  count_and_list_prs:
+    runs-on: ubuntu-latest
+    needs: count_prs
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: List PRs
+      run: |
+        PRS=$(curl -s "https://api.github.com/repos/${{ github.repository }}/pulls" | jq -r '.[].title')
+        PR_COUNT=$(echo "$PRS" | wc -l)
+        echo "Number of PRs: $PR_COUNT"
+        echo "PR Names:"
+        echo "$PRS"
         
