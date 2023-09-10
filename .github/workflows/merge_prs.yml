@@ -65,6 +65,9 @@ jobs:
 
       - name: Get Previous Branch
         run: |
+          pr_to_merge=$(curl -s "https://api.github.com/repos/gkathiravan/merge_queue_project/pulls" | jq -r '[.[] | {number: .number, branch: .head.ref}] | sort_by(.number) | .[1] | .branch')
+          echo "PR Name:"
+          echo "$pr_to_merge"
           echo "Merging branch $pr_to_merge into merge_queue"
 
       - name: Merge Branch
