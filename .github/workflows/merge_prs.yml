@@ -52,7 +52,7 @@ jobs:
       uses: actions/checkout@v2
     - name: List PRs
       run: |
-        pr=$(curl -s "https://api.github.com/repos/gkathiravan/merge_queue_project/pulls" | jq -r '.[] | .head.ref' | sort | head -n 1)
+        pr=$(curl -s "https://api.github.com/repos/gkathiravan/merge_queue_project/pulls" | jq -r 'min_by(.number) | .head.ref')
         echo "PR Name:"
         echo "$pr"      
     
