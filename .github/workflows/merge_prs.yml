@@ -32,18 +32,46 @@ jobs:
         pr_count=$(curl -s "https://api.github.com/repos/${{ github.repository }}/pulls" | jq length)
         echo "Number of PRs: $pr_count"
         
-  count_and_list_prs:
+  list_prs:
     runs-on: ubuntu-latest
     needs: count_prs
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-
     - name: List PRs
       run: |
-        PRS=$(curl -s "https://api.github.com/repos/${{ github.repository }}/pulls" | jq -r '.[].head.ref')
-        PR_COUNT=$(echo "$PRS" | wc -l)
-        echo "Number of PRs: $PR_COUNT"
+        PRS=$(curl -s "https://api.github.com/repos/${{ github.repository }}/pulls" | jq -r '.[] | {number: .number, branch: .head.ref}' | jq -s 'sort_by(.number)[] | .branch')
         echo "PR Names:"
         echo "$PRS"
         
+  print_first_pr:
+    runs-on: ubuntu-latest
+    needs: list_prs
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: List PRs
+      run: |
+        pr_to_merge=$(curl -s "https://api.github.com/repos/gkathiravan/merge_queue_project/pulls" | jq -r '[.[] | {number: .number, branch: .head.ref}] | sort_by(.number) | .[1] | .branch')
+        echo "PR Name:"
+        echo "$pr_to_merge"
+
+  merge_branch:
+    runs-on: ubuntu-latest
+    needs: print_first_pr
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Get Previous Branch
+        run: |
+          echo "Merging branch $pr_to_merge into merge_queue"
+
+      - name: Merge Branch
+        run: |
+          git config user.email "${{ github.event.pull_request.user.login }}@triconinfotech.com"
+          git config user.name "${{ github.event.pull_request.user.login }}"
+          git fetch origin
+          git checkout merge_queue
+          git merge --no-ff --no-edit "$pr_to_merge"
+          git push origin merge_queue
