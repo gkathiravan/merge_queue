@@ -44,5 +44,16 @@ jobs:
         echo "PR Names:"
         echo "$PRS"
         
+  print_first_pr:
+    runs-on: ubuntu-latest
+    needs: count_prs
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: List PRs
+      run: |
+        pr=$(curl -s "https://api.github.com/repos/${{ github.repository }}/pulls" | jq -r '.[] | {number: .number, branch: .head.ref}' | jq -s 'sort_by(.number)[] | .branch | .[0]')
+        echo "PR Name:"
+        echo "$pr"      
     
         
