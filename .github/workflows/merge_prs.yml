@@ -41,16 +41,9 @@ jobs:
 
     - name: List PRs
       run: |
-        PRS=$(curl -s "https://api.github.com/repos/${{ github.repository }}/pulls" | jq -r '.[].head.ref')
-        PR_COUNT=$(echo "$PRS" | wc -l)
-        echo "Number of PRs: $PR_COUNT"
+        PRS=sorted_pr_branches=$(curl -s "https://api.github.com/repos/${{ github.repository }}/pulls" | jq -r '.[] | {number: .number, branch: .head.ref}' | jq -s 'sort_by(.number)[] | .branch')
         echo "PR Names:"
         echo "$PRS"
-        
-    - name: Sort PR Branches
-      run: |
-        sorted_pr_branches=$(curl -s "https://api.github.com/repos/${{ github.repository }}/pulls" | jq -r '.[] | {number: .number, branch: .head.ref}' | jq -s 'sort_by(.number)[] | .branch')
-        echo "Sorted PR Branches: $sorted_pr_branches"
         
     
         
