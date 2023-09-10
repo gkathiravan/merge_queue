@@ -76,5 +76,5 @@ jobs:
           git config user.name "${{ github.event.pull_request.user.login }}"
           git fetch origin
           git checkout merge_queue
-          git merge --no-ff --no-edit "$pr_to_merge"
+          git pull origin "$pr_to_merge"
           git push origin merge_queue
