@@ -41,7 +41,7 @@ jobs:
 
     - name: List PRs
       run: |
-        PRS=$(curl -s "https://api.github.com/repos/${{ github.repository }}/pulls" | jq -r '[.[] | {number: .number, branch: .head.ref} | .branch] | sort_by(.number)')
+        PRS=$(curl -s "https://api.github.com/repos/${{ github.repository }}/pulls" | jq -r '.[] | {number: .number, branch: .head.ref} | [.] | sort_by(.number)[] | .branch' )
         echo "PR Names:"
         echo "$PRS"
         
