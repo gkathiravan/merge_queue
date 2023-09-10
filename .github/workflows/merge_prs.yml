@@ -49,9 +49,8 @@ jobs:
         
     - name: Sort PR Branches
       run: |
-        jq -r '.[] | {number: .number, branch: .head.ref}' | jq -s 'sort_by(.number)[] | .branch' > sorted_pr_branches.txt
-        echo "Sorted PR Branches:"
-        cat sorted_pr_branches.txt
+        sorted_pr_branches=$(curl -s "https://api.github.com/repos/${{ github.repository }}/pulls" | jq -r '.[] | {number: .number, branch: .head.ref}' | jq -s 'sort_by(.number)[] | .branch')
+        echo "Sorted PR Branches: $sorted_pr_branches"
         
     
         
