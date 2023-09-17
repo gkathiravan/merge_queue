@@ -89,6 +89,18 @@ jobs:
           # Extract the PR owner's username
           echo "$pr_data" | jq -r '.head.repo.owner.login'
 
+    - name : Getting the details of the PR
+      run: |
+          pr_data=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/pulls/${{ steps.pr_branch_name.outputs.pr_number }}")
+          # Extract the PR owner's username
+          echo "$pr_data" | jq -r '.mergeable'
+
+          if [[ "$pr_data" | jq -r '.mergeable' == "true" ]]; then
+          echo "PR $${{ steps.pr_branch_name.outputs.pr_number }} can be merged."
+          else
+          echo "PR #$PR_NUMBER has conflicts and cannot be merged."
+          fi
           
     
     
