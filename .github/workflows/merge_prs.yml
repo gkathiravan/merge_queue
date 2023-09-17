@@ -50,7 +50,8 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-    - name: List PRs
+    - name:  pr_name
+      id: pr_branch_name
       run: |
         pr_to_merge=$(curl -s "https://api.github.com/repos/gkathiravan/merge_queue_project/pulls" | jq -r '[.[] | {number: .number, branch: .head.ref}] | sort_by(.number) | .[1] | .branch')
         echo "PR Name:"
@@ -59,9 +60,19 @@ jobs:
   pr-approval-check:
     runs-on: ubuntu-latest
     steps:
-      - name: pr_number
+      - name: checking approvals
         run: |
-          pr_number = $(curl -s "https://api.github.com/repos/gkathiravan/merge_queue_project/pulls" | jq -r '[.[] | {number: .number, branch: .head.ref}] | sort_by(.number) | .[1].number')
-          echo "Pr number:"
-          echo "$pr_number"
-  
+          PR_NAME="${{ steps.print_first_pr.outputs.pr_to_merge }}"
+          echo "$PR_NAME"
+          APPROVALS=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                       -H "Accept: application/vnd.github.v3+json" \
+                       "https://api.github.com/repos/$GITHUB_REPOSITORY/pulls?head=$PR_NAME")
+
+          # Check if at least one approval exists
+          if [ "$(echo "$APPROVALS" | jq -r '.[] | select(.state=="APPROVED")')" ]; then
+            echo "PR has at least one approval."
+            exit 0
+          else
+            echo "PR does not have approval. Merging is not allowed."
+            exit 1
+          fi
