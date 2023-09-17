@@ -67,8 +67,8 @@ jobs:
           token="${{ secrets.GITHUB_TOKEN }}"
           pr_number=${{ steps.pr_branch_name.outputs.pr_number }}
           reviews=$(curl -s -H "Authorization: Bearer $token" \
-            "https://api.github.com/repos/$owner/$repo/pulls/$pr_number/reviews")
+            "https://api.github.com/repos/owner/repo/pulls/pr_number/reviews")
             
           echo "Reviews for PR #$pr_number:"
-          echo "$reviews" | jq -r '.[] | "Reviewer: \(.user.login)"'
+          echo "$reviews" | jq -r '.[] | "Reviewer: \(.user.login) State: \(.state)"'
     
