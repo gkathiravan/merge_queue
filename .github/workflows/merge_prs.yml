@@ -62,5 +62,10 @@ jobs:
         echo "pr_number=$pr_number" >> "$GITHUB_OUTPUT"
     - name: Display PR Number
       run: |
-          echo "PR Number: ${{ steps.pr_branch_name.outputs.pr_number }}"
+          pr_number=${{ steps.pr_branch_name.outputs.pr_number }}
+          reviews=$(curl -s -H "Authorization: Bearer $token" \
+            "https://api.github.com/repos/$owner/$repo/pulls/$pr_number/reviews")
+            
+          echo "Reviews for PR #$pr_number:"
+          echo "$reviews" | jq -r '.[] | "Reviewer: \(.user.login), State: \(.state)"'
     
