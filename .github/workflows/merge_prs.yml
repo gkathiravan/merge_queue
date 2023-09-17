@@ -94,6 +94,13 @@ jobs:
           pr_data=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             "https://api.github.com/repos/${{ github.repository }}/pulls/${{ steps.pr_branch_name.outputs.pr_number }}")
           # Extract the PR owner's username
+          echo "$pr_data" | jq -r '.head.repo.owner.login'
+          
+    - name : checking the state of the PR whether can me merged or not
+      run: |
+          pr_data=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/pulls/${{ steps.pr_branch_name.outputs.pr_number }}")
+          # Extract the PR owner's username
           echo "$pr_data" | jq -r '.mergeable'
 
           if [[ "$pr_data" | jq -r '.mergeable' == "true" ]]; then
