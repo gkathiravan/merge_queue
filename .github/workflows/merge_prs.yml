@@ -56,17 +56,9 @@ jobs:
         pr_to_merge=$(curl -s "https://api.github.com/repos/gkathiravan/merge_queue_project/pulls" | jq -r '[.[] | {number: .number, branch: .head.ref}] | sort_by(.number) | .[1] | .branch')
         echo "PR Name:"
         echo "$pr_to_merge"
-        
-  print-approvals:
-    runs-on: ubuntu-latest
 
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v2
-
-      - name: Print number of approvals
-        run: |
-          PR_NUMBER=$(echo "${GITHUB_REF}" | awk 'BEGIN {FS="/"} {print $3}')
-          APPROVALS=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/${{ github.repository }}/pulls/3/reviews?per_page=100" | jq '[.[] | select(.state=="APPROVED")] | length')
-          echo "Number of approvals for PR #${PR_NUMBER}: ${APPROVALS}"
+        if [[ $pr_to_merge == "refs/pull/"* ]]; then
+            PR_NUMBER=$(echo "$CURRENT_BRANCH" | cut -d'/' -f 3)
+            echo "PR Number: $PR_NUMBER"
+        fi
     
