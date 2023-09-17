@@ -76,7 +76,7 @@ jobs:
           echo "approvals=$approvals" >> "$GITHUB_OUTPUT"
           
     - name: Send Email if Approvals < 2
-      if: steps.pr_approvals.outputs.approvals < 2
+      if: steps.pr_approvals.outputs.approvals > 2
       run: |
           echo steps.pr_approvals.outputs.approvals 
           # Replace this with your email-sending logic
