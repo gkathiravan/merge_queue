@@ -62,26 +62,7 @@ jobs:
     steps:
       - name: checking approvals
         run: |
-          echo "${{ secrets.GITHUB_TOKEN }}"
-  job1:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Set an output
-        id: set_output
-        run: echo "::set-output name=my_output::Hello from Job 1"
-
-  job2:
-    runs-on: ubuntu-latest
-    needs: job1
-
-    steps:
-      - name: Get the output from Job 1 and set an environment variable
-        id: set_env_variable
-        run: |
-          echo "MyOutput=${{ needs.job1.outputs.my_output }}" >> $GITHUB_ENV
-          
-      - name: Verify the environment variable
-        run: echo "MyOutput is $MyOutput"
+          APPROVALS=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/${{ github.repository }}/pulls/${3}/reviews?per_page=100" | jq '[.[] | select(.state=="APPROVED")] | length')
+          echo "Number of approvals for PR #${PR_NUMBER}: ${APPROVALS}"
 
     
