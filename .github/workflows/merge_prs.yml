@@ -78,6 +78,7 @@ jobs:
     - name: Send Email if Approvals < 2
       if: steps.pr_approvals.outputs.approvals < 2
       run: |
+          echo $${{ steps.pr_approvals.outputs.approvals }}
           # Replace this with your email-sending logic
           echo "Sending email to PR owner because approvals are less than 2."
     
