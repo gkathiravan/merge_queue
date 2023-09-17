@@ -44,7 +44,7 @@ jobs:
         echo "PR Names:"
         echo "$PRS"
         
-  print_first_pr:
+  checks:
     runs-on: ubuntu-latest
     needs: list_prs
     steps:
@@ -72,4 +72,10 @@ jobs:
           echo "Reviews for PR $pr_number:"
           echo $reviews | jq '[.[] | select(.state=="APPROVED")] | length'
           echo "$reviews" | jq -r '.[] | "Reviewer: \(.user.login) State: \(.state)"'
+          
+    - name: Send Email if Approvals < 2
+      if: steps.set_approvals.outputs.approvals < 2
+      run: |
+          # Replace this with your email-sending logic
+          echo "Sending email to PR owner because approvals are less than 2."
     
