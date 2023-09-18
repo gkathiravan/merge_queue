@@ -117,6 +117,7 @@ jobs:
       run: |
         git config user.email "${{ github.event.pull_request.user.login }}@triconinfotech.com"
         git config user.name "${{ github.event.pull_request.user.login }}"
+        git fetch origin
         git checkout merge_queue
         git pull origin merge_queue
         git merge --no-ff --no-commit ${{ steps.pr_branch.outputs.pr_branch_name }}
