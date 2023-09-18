@@ -47,20 +47,26 @@ jobs:
         echo "PR Names:"
         echo "$PRS"
         
-  check-out-of-date:
+  check-branch:
     runs-on: ubuntu-latest
+    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Check if PR is out-of-date
+      - name: Check Branch Status
+        id: check
         run: |
-          # Fetch the comparison between base and head branches using GitHub API
-          COMPARE_URL=$(curl -s "https://api.github.com/repos/${{ github.repository }}/compare/${{ github.event.pull_request.head.sha }}...${{ github.event.pull_request.base.sha }}" | jq -r '.status')
-
-          if [ "$COMPARE_URL" = "identical" ] || [ "$COMPARE_URL" = "ahead" ]; then
-            echo "The pull request is up-to-date."
+          # Get the latest commit hash of the main branch
+          latest_main_commit=$(git ls-remote origin main | awk '{print $1}')
+          
+          # Get the latest commit hash of the current branch
+          current_branch_commit=$(git rev-parse HEAD)
+          
+          # Check if the current branch is behind the main branch
+          if [ "$current_branch_commit" != "$latest_main_commit" ]; then
+            echo "Branch is out-of-date."
+            exit 1
           else
-            echo "The pull request is out-of-date."
+            echo "Branch is up-to-date."
           fi
+          
+        shell: bash
         
