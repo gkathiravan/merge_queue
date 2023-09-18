@@ -104,3 +104,21 @@ jobs:
           # else
           # echo "PR #$PR_NUMBER has conflicts and cannot be merged."
           # fi
+          
+    - name:  pr_name
+      id: pr_branch
+      run: |
+        pr_to_merge=$(curl -s "https://api.github.com/repos/gkathiravan/merge_queue_project/pulls" | jq -r '[.[] | {number: .number, branch: .head.ref}] | sort_by(.number) | .[1] | .branch')
+        echo "PR Name:"
+        echo "$pr_to_merge"
+        echo "pr_branch_name=$pr_to_merge" >> "$GITHUB_OUTPUT"
+          
+    - name: Merge Branch
+      run: |
+        git config user.email "${{ github.event.pull_request.user.login }}@triconinfotech.com"
+        git config user.name "${{ github.event.pull_request.user.login }}"
+        git checkout merge_queue
+        git pull origin merge_queue
+        git merge --no-ff --no-commit ${{ steps.pr_branch.outputs.pr_branch_name }}
+        git commit -am "Merge source_branch into target_branch"  # Commit the merge
+        git push origin merge_queue
