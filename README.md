@@ -1,2 +1,3 @@
 # merge_queue
-A poc repo for merging the PR'ss automatically 
+A poc repo for merging the PR's automatically
+this is first test pr
