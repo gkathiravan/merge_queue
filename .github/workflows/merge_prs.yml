@@ -79,16 +79,9 @@ jobs:
     - name: Send Email if Approvals < 2
       if: steps.pr_approvals.outputs.approvals < 2
       run: |
-          # Replace this with your email-sending logic
+          # TODO: Replace this with email-sending logic 
           echo "Sending email to PR owner because approvals are less than 2."
           
-    - name : Getting the details of the PR
-      run: |
-          pr_data=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/repos/${{ github.repository }}/pulls/${{ steps.pr_branch_name.outputs.pr_number }}")
-          # Extract the PR owner's username
-          echo "$pr_data" | jq -r '.head.repo.owner.login'
-
     - name : Getting the details of the PR
       run: |
           pr_data=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
@@ -103,11 +96,11 @@ jobs:
           # Extract the PR owner's username
           echo "$pr_data" | jq -r '.mergeable'
 
-          if [[ "$pr_data" | jq -r '.mergeable' == "true" ]]; then
-          echo "PR $${{ steps.pr_branch_name.outputs.pr_number }} can be merged."
-          else
-          echo "PR #$PR_NUMBER has conflicts and cannot be merged."
-          fi
+          # if [[ "$pr_data" | jq -r '.mergeable' == "true" ]]; then
+          # echo "PR $${{ steps.pr_branch_name.outputs.pr_number }} can be merged."
+          # else
+          # echo "PR #$PR_NUMBER has conflicts and cannot be merged."
+          # fi
           
     
     
