@@ -21,7 +21,7 @@ jobs:
           echo "Branch Name : ${{ github.event.pull_request.head.ref }}"
           echo "---------------------"
           
-  count_prs:
+  no_of_prs:
     runs-on: ubuntu-latest
     needs: print_details
     steps:
@@ -32,9 +32,9 @@ jobs:
         pr_count=$(curl -s "https://api.github.com/repos/${{ github.repository }}/pulls" | jq length)
         echo "Number of PRs: $pr_count"
         
-  list_prs:
+  name_of_the_prs:
     runs-on: ubuntu-latest
-    needs: count_prs
+    needs: no_of_prs
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -44,9 +44,9 @@ jobs:
         echo "PR Names:"
         echo "$PRS"
         
-  checks:
+  approvals_check:
     runs-on: ubuntu-latest
-    needs: list_prs
+    needs: name_of_the_prs
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -90,8 +90,12 @@ jobs:
           # Extract the PR owner's username
           echo "$pr_data" | jq -r '.head.repo.owner.login'
           
-    - name : checking the state of the PR whether can me merged or not
-      run: |
+  conflict_check:
+      runs-on: ubuntu-latest
+      needs: approvals_check
+      steps:
+       - name : checking the state of the PR whether can me merged or not
+         run: |
           pr_data=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             "https://api.github.com/repos/${{ github.repository }}/pulls/${{ steps.pr_branch_name.outputs.pr_number }}")
             
@@ -104,22 +108,3 @@ jobs:
           # else
           # echo "PR #$PR_NUMBER has conflicts and cannot be merged."
           # fi
-          
-    - name:  pr_name
-      id: pr_branch
-      run: |
-        pr_to_merge=$(curl -s "https://api.github.com/repos/gkathiravan/merge_queue_project/pulls" | jq -r '[.[] | {number: .number, branch: .head.ref}] | sort_by(.number) | .[1] | .branch')
-        echo "PR Name:"
-        echo "$pr_to_merge"
-        echo "pr_branch_name=$pr_to_merge" >> "$GITHUB_OUTPUT"
-          
-    - name: Merge Branch
-      run: |
-        git config user.email "${{ github.event.pull_request.user.login }}@triconinfotech.com"
-        git config user.name "${{ github.event.pull_request.user.login }}"
-        git fetch origin
-        git checkout merge_queue
-        git pull origin merge_queue
-        git merge --no-ff --no-commit ${{ steps.pr_branch.outputs.pr_branch_name }}
-        git commit -am "Merge source_branch into target_branch"  # Commit the merge
-        git push origin merge_queue
